@@ -288,7 +288,7 @@ function Dashboard() {
 					</Card>
 				</div>
 			
-				<div className="col-xl-6">
+				{/* <div className="col-xl-6">
 					<Card className="mb-3">
 						<CardBody>
 							<div className="d-flex fw-bold small mb-3">
@@ -345,9 +345,9 @@ function Dashboard() {
 							</div>
 						</CardBody>
 					</Card>
-				</div>
+				</div> */}
 			
-				<div className="col-xl-6">
+				{/* <div className="col-xl-6">
 					<Card className="mb-3">
 						<CardBody>
 							<div className="d-flex fw-bold small mb-3">
@@ -379,7 +379,7 @@ function Dashboard() {
 							</div>
 						</CardBody>
 					</Card>
-				</div>
+				</div> */}
 			</div>
 		</div>
 	)
