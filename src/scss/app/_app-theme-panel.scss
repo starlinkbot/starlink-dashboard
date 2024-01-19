@@ -1,6 +1,8 @@
 $theme-panel-width: $spacer * 12;
 
 .app-theme-panel {
+	// wxh--
+	display: none !important;
 	position: fixed;
 	top: 0;
 	bottom: 0;

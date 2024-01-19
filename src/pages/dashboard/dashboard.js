@@ -288,7 +288,7 @@ function Dashboard() {
 						</CardBody>
 					</Card>
 				</div>
-			
+				{/* wxh-- */}
 				{/* <div className="col-xl-6">
 					<Card className="mb-3">
 						<CardBody>
@@ -347,7 +347,7 @@ function Dashboard() {
 						</CardBody>
 					</Card>
 				</div> */}
-			
+				{/* wxh-- */}
 				{/* <div className="col-xl-6">
 					<Card className="mb-3">
 						<CardBody>

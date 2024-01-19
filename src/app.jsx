@@ -8,6 +8,7 @@ import ThemePanel from './components/theme-panel/theme-panel.jsx';
 import { AppSettings } from './config/app-settings.js';
 
 function App() {
+	// wxh--
 	var defaultOptions = {
 		appMode: 'dark',
 		appTheme: 'theme-teal',
