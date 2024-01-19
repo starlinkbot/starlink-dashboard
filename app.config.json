@@ -1,0 +1,11 @@
+{
+	"apps":[
+		{
+			"name": "starlink-dashboard-5003",
+			"script": "node",
+			"interpreter": "none",
+			"max_memory_restart": "300M",
+			"args": "express.js"
+		}
+	]
+}

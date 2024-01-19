@@ -1,0 +1,29 @@
+
+.idea
+/build
+/dist
+/ubuntu/
+ubuntu@13.57.233.166/
+aws_omni/
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# misc
+.DS_Store
+.env.development.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+package-lock.json
+yarn.lock
+
+# app.config.json
+# express.js
