@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import jsVectorMap from 'jsvectormap';
 import 'jsvectormap/dist/maps/world.js';
