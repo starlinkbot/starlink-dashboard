@@ -1,26 +1,26 @@
 [
 	{
-		"name": "FEED",
+		"name": "Ethereum",
 		"percentage": "25.70%",
 		"class": "bg-theme bg-opacity-95"
 	},
 	{
-		"name": "ORGANIC",
+		"name": "BNBChain",
 		"percentage": "24.30%",
 		"class": "bg-theme bg-opacity-75"
 	},
 	{
-		"name": "REFERRAL",
+		"name": "Bitcoin",
 		"percentage": "23.05%",
 		"class": "bg-theme bg-opacity-55"
 	},
 	{
-		"name": "DIRECT",
+		"name": "Tron",
 		"percentage": "14.85%",
 		"class": "bg-theme bg-opacity-35"
 	},
 	{
-		"name": "EMAIL",
+		"name": "Base",
 		"percentage": "7.35%",
 		"class": "bg-theme bg-opacity-15"
 	}

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import jsVectorMap from 'jsvectormap';
@@ -5,11 +6,69 @@ import 'jsvectormap/dist/maps/world.js';
 import 'jsvectormap/dist/css/jsvectormap.min.css';
 import { Card, CardBody, CardExpandToggler } from './../../components/card/card.jsx';
 import Chart from 'react-apexcharts';
+import { useRequest } from "../../service/index.js"
 
 function Dashboard() {
+	const { request } = useRequest() 
+	const [networkUsage, setNetworkUsage] = useState(null)
+	const [countryBots, setCountryBots] = useState([])
+	const [countrys, setCountrys] = useState([])
+
+	useEffect(() => {
+		async function getNetworkUsage() {
+			const resp = await request("app/dashboard/network_usage")
+			const _datas = resp.map(item => Number(item.data || "0"))
+			const _max = Math.max(..._datas)
+			const _min = Math.min(..._datas)
+			const _chg = ((_datas[_datas.length - 1] - _datas[0]) / _datas[0]).toFixed(2) * 100
+			setNetworkUsage({...networkUsage, datas: _datas, max: _max, min: _min, chg: _chg})
+		}
+		getNetworkUsage()
+	}, [])
+
+	useEffect(() => {
+		async function getDiskUsage() {
+			const resp = await request("app/dashboard/disk_usage")
+			console.log(resp)
+		}
+		getDiskUsage()
+	}, [])
+
+	useEffect(() => {
+		async function getCountryBots() {
+			const resp = await request("app/dashboard/country_bots")
+			console.log("======>", resp)
+			const _countrys = resp.map(item => item.first)
+			setCountrys(_countrys)
+			console.log("======>", _countrys)
+			const total = resp.reduce((sum, item) => sum + item.second, 0)
+			const sortedResp = resp.sort((a, b) => b.second - a.second)
+			const topFiveResp = sortedResp.slice(0, 5)
+			const _countryBots = []
+			topFiveResp.forEach((_resp) => {
+				const __resp = {
+					name: _resp.first,
+					visits: _resp.second,
+					pct: ((_resp.second / total) * 100).toFixed(2),
+					class: ""
+				}
+				_countryBots.push(__resp)
+			})
+			setCountryBots(_countryBots)
+		}
+		getCountryBots()
+	}, [])
+
+	useEffect(() => {
+		async function getDataCenter() {
+			const resp = await request("app/dashboard/data_centers")
+			console.log(resp)
+		}
+		getDataCenter()
+	}, [])
 	
 	function randomNo() {
-		return Math.floor(Math.random() * 60) + 30
+		return Math.floor(Math.random() * 46) + 40
 	};
 	
 	// server chart
@@ -108,11 +167,14 @@ function Dashboard() {
 				hoverOpacity: 0.5,
 				hoverColor: false,
 				zoomOnScroll: false,
-				series: { regions: [{ normalizeFunction: 'polynomial' }] },
+				selectedRegions: countrys,
+				series: { regions: [
+					{ normalizeFunction: 'polynomial' },
+				] },
 				labels: { markers: { render: (marker) => marker.name } },
 				focusOn: { x: 0.5, y: 0.5, scale: 1 },
 				markerStyle: { initial: { fill: themeColor, stroke: 'none', r: 5 }, hover: { fill: themeColor } },
-				regionStyle: { initial: { fill: inverse, fillOpacity: 0.35, stroke: 'none', strokeWidth: 0.4, strokeOpacity: 1 }, hover: { fillOpacity: 0.5 } },
+				regionStyle: { initial: { fill: inverse, fillOpacity: 0.35, stroke: 'none', strokeWidth: 0.4, strokeOpacity: 1 }, hover: { fillOpacity: 0.5 }, selectedHover: { fillOpacity: 0.5 } },
 				backgroundColor: 'transparent',
 			});
 		}
@@ -136,12 +198,12 @@ function Dashboard() {
 		});
 		
 		// eslint-disable-next-line
-  }, []);
+  }, [countrys]);
 	
 	return (
 		<div>
 			<div className="row">
-				{ statsData && statsData.length > 0 && statsData.map((stat, index) => (
+				{/* { statsData && statsData.length > 0 && statsData.map((stat, index) => (
 					<div className="col-xl-3 col-lg-6" key={index}>
 						<Card className="mb-3">
 							<CardBody>
@@ -167,7 +229,125 @@ function Dashboard() {
 							</CardBody>
 						</Card>
 					</div>
-				))}
+				))} */}
+
+				{
+					statsData && statsData.length > 0 && <div className="col-xl-3 col-lg-6">
+						<Card className="mb-3">
+							<CardBody>
+								<div className="d-flex fw-bold small mb-3">
+									<span className="flex-grow-1">{statsData[0].title}</span>
+									<CardExpandToggler />
+								</div>
+								<div className="row align-items-center mb-2">
+									<div className="col-7">
+										<h3 className="mb-0">{statsData[0].total}</h3>
+									</div>
+									<div className="col-5">
+										<div className="mt-n2">
+											<Chart type={statsData[0].chartType} height={statsData[0].chartHeight} options={  chartOptions[statsData[0].chartType]} series={statsData[0].chartData} />
+										</div>
+									</div>
+								</div>
+								<div className="small text-inverse text-opacity-50 text-truncate">
+									{statsData[0].info.length > 0 && statsData[0].info.map((info, index) => (
+										<div key={index}><i className={info.icon}></i> {info.text}</div>
+									))}
+								</div>
+							</CardBody>
+						</Card>
+					</div>
+				}
+
+				{
+					networkUsage && <div className="col-xl-3 col-lg-6">
+						<Card className="mb-3">
+							<CardBody>
+								<div className="d-flex fw-bold small mb-3">
+									<span className="flex-grow-1">NETWORK USAGE</span>
+									<CardExpandToggler />
+								</div>
+								<div className="row align-items-center mb-2">
+									<div className="col-7">
+										<h3 className="mb-0">{networkUsage.datas[networkUsage.datas.length - 1]}</h3>
+									</div>
+									<div className="col-5">
+										<div className="mt-n2">
+											<Chart type="line" height={30} options={chartOptions.line} series={[
+												{
+													"name": "Sales",
+													"data": networkUsage.datas
+												}
+											]} />
+										</div>
+									</div>
+								</div>
+								<div className="small text-inverse text-opacity-50 text-truncate">
+									<div><i className="fa fa-chevron-up fa-fw me-1"></i>{`24H Max: ${networkUsage.max}`}</div>
+									<div><i className="fa fa-shopping-bag fa-fw me-1"></i>{`24H Min: ${networkUsage.min}`}</div>
+									<div><i className="fa fa-dollar-sign fa-fw me-1"></i>{`24H Chg%: ${networkUsage.chg}%`}</div>
+								</div>
+							</CardBody>
+						</Card>
+					</div>
+				}
+				
+				{
+					statsData && statsData.length > 0 && <div className="col-xl-3 col-lg-6">
+						<Card className="mb-3">
+							<CardBody>
+								<div className="d-flex fw-bold small mb-3">
+									<span className="flex-grow-1">{statsData[2].title}</span>
+									<CardExpandToggler />
+								</div>
+								<div className="row align-items-center mb-2">
+									<div className="col-7">
+										<h3 className="mb-0">{statsData[2].total}</h3>
+									</div>
+									<div className="col-5">
+										<div className="mt-n2">
+											<Chart type={statsData[2].chartType} height={statsData[2].chartHeight} options={  chartOptions[statsData[2].chartType]} series={statsData[2].chartData} />
+										</div>
+									</div>
+								</div>
+								<div className="small text-inverse text-opacity-50 text-truncate">
+									{statsData[1].info.length > 0 && statsData[1].info.map((info, index) => (
+										<div key={index}><i className={info.icon}></i> {info.text}</div>
+									))}
+								</div>
+							</CardBody>
+						</Card>
+					</div>
+				}
+
+				{
+					statsData && statsData.length > 0 && <div className="col-xl-3 col-lg-6">
+						<Card className="mb-3">
+							<CardBody>
+								<div className="d-flex fw-bold small mb-3">
+									<span className="flex-grow-1">{statsData[3].title}</span>
+									<CardExpandToggler />
+								</div>
+								<div className="row align-items-center mb-2">
+									<div className="col-7">
+										<h3 className="mb-0">{statsData[3].total}</h3>
+									</div>
+									<div className="col-5">
+										<div className="mt-n2">
+											<Chart type={statsData[3].chartType} height={statsData[3].chartHeight} options={  chartOptions[statsData[3].chartType]} series={statsData[3].chartData} />
+										</div>
+									</div>
+								</div>
+								<div className="small text-inverse text-opacity-50 text-truncate">
+									{statsData[3].info.length > 0 && statsData[3].info.map((info, index) => (
+										<div key={index}><i className={info.icon}></i> {info.text}</div>
+									))}
+								</div>
+							</CardBody>
+						</Card>
+					</div>
+				}
+					
 		
 				<div className="col-xl-6">
 					<Card className="mb-3">
@@ -184,7 +364,7 @@ function Dashboard() {
 									<div className="col-lg-6 mb-3 mb-lg-0" key={index}>
 										<div className="d-flex">
 											<div className="w-50px pt-3">
-												<Chart type={server.chartType} height={server.chartHeight} options={  chartOptions[server.chartType]} series={server.chartData} />
+												<Chart type={server.chartType} height={server.chartHeight} options={chartOptions[server.chartType]} series={server.chartData} />
 											</div>
 											<div className="ps-3 flex-1">
 												<div className="fs-10px fw-bold text-inverse text-opacity-50 mb-1">{server.name}</div>
@@ -220,7 +400,7 @@ function Dashboard() {
 					<Card className="mb-3">
 						<CardBody>
 							<div className="d-flex fw-bold small mb-3">
-								<span className="flex-grow-1">TRAFFIC ANALYTICS</span>
+								<span className="flex-grow-1">DATA CENTERS</span>
 								<CardExpandToggler />
 							</div>
 							<div className="ratio ratio-21x9 mb-3">
@@ -232,16 +412,16 @@ function Dashboard() {
 										<thead>
 											<tr className="text-inverse text-opacity-75">
 												<th className="w-50">COUNTRY</th>
-												<th className="w-25 text-end">VISITS</th>
+												<th className="w-25 text-end">Bots</th>
 												<th className="w-25 text-end">PCT%</th>
 											</tr>
 										</thead>
 										<tbody>
-											{ countryData && countryData.length > 0 ? (  countryData.map((country, index) => (
+											{ countryBots && countryBots.length > 0 ? (  countryBots.map((country, index) => (
 												<tr key={index} className={country.class}>
 													<td>{country.name}</td>
 													<td className="text-end">{country.visits}</td>
-													<td className="text-end">{country.pct}</td>
+													<td className="text-end">{`${country.pct}%`}</td>
 												</tr>
 											))) : (
 												<tr>
