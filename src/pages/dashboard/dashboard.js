@@ -8,11 +8,13 @@ import { Card, CardBody, CardExpandToggler } from './../../components/card/card.
 import Chart from 'react-apexcharts';
 import { useRequest } from "../../service/index.js"
 
+const MARKURL = 'https://starlinkbot.s3.ap-southeast-1.amazonaws.com/assets/mark.gif'
+
 function Dashboard() {
 	const { request } = useRequest() 
 	const [networkUsage, setNetworkUsage] = useState(null)
+	const [diskUsage, setDiskUsage] = useState(0)
 	const [countryBots, setCountryBots] = useState([])
-	const [countrys, setCountrys] = useState([])
 
 	useEffect(() => {
 		async function getNetworkUsage() {
@@ -29,7 +31,7 @@ function Dashboard() {
 	useEffect(() => {
 		async function getDiskUsage() {
 			const resp = await request("app/dashboard/disk_usage")
-			console.log(resp)
+			setDiskUsage(resp)
 		}
 		getDiskUsage()
 	}, [])
@@ -37,10 +39,6 @@ function Dashboard() {
 	useEffect(() => {
 		async function getCountryBots() {
 			const resp = await request("app/dashboard/country_bots")
-			console.log("======>", resp)
-			const _countrys = resp.map(item => item.first)
-			setCountrys(_countrys)
-			console.log("======>", _countrys)
 			const total = resp.reduce((sum, item) => sum + item.second, 0)
 			const sortedResp = resp.sort((a, b) => b.second - a.second)
 			const topFiveResp = sortedResp.slice(0, 5)
@@ -59,13 +57,13 @@ function Dashboard() {
 		getCountryBots()
 	}, [])
 
-	useEffect(() => {
-		async function getDataCenter() {
-			const resp = await request("app/dashboard/data_centers")
-			console.log(resp)
-		}
-		getDataCenter()
-	}, [])
+	// useEffect(() => {
+	// 	async function getDataCenter() {
+	// 		const resp = await request("app/dashboard/data_centers")
+	// 		console.log("data_centers======>", resp)
+	// 	}
+	// 	getDataCenter()
+	// }, [])
 	
 	function randomNo() {
 		return Math.floor(Math.random() * 46) + 40
@@ -167,15 +165,27 @@ function Dashboard() {
 				hoverOpacity: 0.5,
 				hoverColor: false,
 				zoomOnScroll: false,
-				selectedRegions: countrys,
 				series: { regions: [
 					{ normalizeFunction: 'polynomial' },
 				] },
 				labels: { markers: { render: (marker) => marker.name } },
 				focusOn: { x: 0.5, y: 0.5, scale: 1 },
-				markerStyle: { initial: { fill: themeColor, stroke: 'none', r: 5 }, hover: { fill: themeColor } },
+				markerStyle: { initial: { fill: themeColor, r: 5 }, hover: { fill: themeColor } },
 				regionStyle: { initial: { fill: inverse, fillOpacity: 0.35, stroke: 'none', strokeWidth: 0.4, strokeOpacity: 1 }, hover: { fillOpacity: 0.5 }, selectedHover: { fillOpacity: 0.5 } },
 				backgroundColor: 'transparent',
+				markers: [
+					{ coords: [37.0902, -95.7129], style: { image: MARKURL } },
+					{ coords: [55.3781, -3.4360], style: { image: MARKURL } },
+					{ coords: [51.1657, 10.4515], style: { image: MARKURL } },
+					{ coords: [60.1282, 18.6435], style: { image: MARKURL } },
+					{ coords: [40.4637, -3.7492], style: { image: MARKURL } },
+					{ coords: [-30.5595, 22.9375], style: { image: MARKURL } },
+					{ coords: [36.2048, 138.2529], style: { image: MARKURL } },
+					{ coords: [35.9078, 127.7669], style: { image: MARKURL } },
+					{ coords: [1.3521, 103.8198], style: { image: MARKURL } },
+					{ coords: [-25.2744, 133.7751], style: { image: MARKURL } },
+					{ coords: [-35.6751, -71.5430], style: { image: MARKURL } },
+				]
 			});
 		}
   }
@@ -196,9 +206,8 @@ function Dashboard() {
 			setChartOptions(getChartOptions());
 			renderMap();
 		});
-		
-		// eslint-disable-next-line
-  }, [countrys]);
+
+  }, []);
 	
 	return (
 		<div>
@@ -269,7 +278,7 @@ function Dashboard() {
 								</div>
 								<div className="row align-items-center mb-2">
 									<div className="col-7">
-										<h3 className="mb-0">{networkUsage.datas[networkUsage.datas.length - 1]}</h3>
+										<h3 className="mb-0">{`${networkUsage.datas[networkUsage.datas.length - 1]}GB`}</h3>
 									</div>
 									<div className="col-5">
 										<div className="mt-n2">
@@ -283,8 +292,8 @@ function Dashboard() {
 									</div>
 								</div>
 								<div className="small text-inverse text-opacity-50 text-truncate">
-									<div><i className="fa fa-chevron-up fa-fw me-1"></i>{`24H Max: ${networkUsage.max}`}</div>
-									<div><i className="fa fa-shopping-bag fa-fw me-1"></i>{`24H Min: ${networkUsage.min}`}</div>
+									<div><i className="fa fa-chevron-up fa-fw me-1"></i>{`24H Max: ${networkUsage.max} GB`}</div>
+									<div><i className="fa fa-shopping-bag fa-fw me-1"></i>{`24H Min: ${networkUsage.min} GB`}</div>
 									<div><i className="fa fa-dollar-sign fa-fw me-1"></i>{`24H Chg%: ${networkUsage.chg}%`}</div>
 								</div>
 							</CardBody>
@@ -368,7 +377,7 @@ function Dashboard() {
 											</div>
 											<div className="ps-3 flex-1">
 												<div className="fs-10px fw-bold text-inverse text-opacity-50 mb-1">{server.name}</div>
-												<div className="mb-2 fs-5 text-truncate">{server.total}</div>
+												<div className="mb-2 fs-5 text-truncate">{ index === 0 ? `${diskUsage} GB` : server.total}</div>
 												<div className="progress h-3px bg-inverse-transparent-2 mb-1">
 													<div className="progress-bar bg-theme" style={{width: server.progress}}></div>
 												</div>
